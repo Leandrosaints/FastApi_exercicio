@@ -1,0 +1,9 @@
+#criando uma api sobre de reservas de hoteis
+    --primeiro a api irar ter:
+        *api terar varios hoteis cadastrados
+        *cada hotel tera seu site
+        *o site pode ter varios hoteis(one_to_many)
+        *O usuario podera fazer buscar com filtros
+
+
+
