@@ -2,11 +2,13 @@ from fastapi import APIRouter, status, HTTPException, Depends, Response
 from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from core.depes import get_session 
+from core.depes import get_session
 from schemas.usuario_schema import UsuarioSchemaBase,UsuarioSchemaUp, UsuarioSchemaCreate
 from models.usuario_model import UsuarioModel
-from core.security import gerar_hash_senha
-
+from core.security import gerar_hash_senha,verificar_senha
+from core.auth import autenticar,criar_token_acesso, criar_token
+from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.responses import JSONResponse
 
 router = APIRouter()
 
@@ -23,6 +25,18 @@ async def RegisterUser(usuario:UsuarioSchemaCreate, db: AsyncSession = Depends(g
             return novo_usuario
         except:
             raise HTTPException(detail='nao foi possivel cadastrar o usuario', status_code=status.HTTP_406_NOT_ACCEPTABLE)
+
+@router.post('/login')
+async def login(form_data:OAuth2PasswordRequestForm=Depends(), db:AsyncSession = Depends(get_session)):
+    usuario = await autenticar(email=form_data.username, senha=form_data.password, db=db)
+
+    if not usuario:
+        raise HTTPException(detail='dados incorretos', status_code=status.HTTP_400_BAD_REQUEST)
+
+    return JSONResponse(content={"acess_token":criar_token_acesso(sub=usuario.id), "token_type":"bearer"}, status_code=status.HTTP_200_OK)
+    
+
+
 @router.get('/', response_model=List[UsuarioSchemaBase], status_code=status.HTTP_200_OK)
 async def get_usuarios(db:AsyncSession = Depends(get_session)):
     async with db as session:
@@ -91,4 +105,7 @@ async def delete_usuario(usuario_id:int, db:AsyncSession=Depends(get_session)):
             return Response(status_code=status.HTTP_204_NO_CONTENT)
         else:
             raise HTTPException(detail=f'nao foi possivel excluir o usuario de id {usuario_id}.', status_code=status.HTTP_404_NOT_FOUND)
+
+
+
 
