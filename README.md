@@ -1,4 +1,4 @@
-# Exemplo da construção de um APi de com FasTApi.
+# Exemplo da construção de um APi de com FastApi.
 A **API** em questão a ser apresentada é uma representaçaõ 
 intermediaria do que seria uma API baseada em sites famosos de cadastramento de Hoteis, exemplo um site estilo Trivago.
 
